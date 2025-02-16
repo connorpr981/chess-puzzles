@@ -1,16 +1,14 @@
-# Configuration for language models to be evaluated.
-
 language_models:
-  - name: gpt-4o-2024-08-06
-    config:
-      model: openai/gpt-4o-2024-08-06
-      cache: true
-      max_tokens: 2000
+  # - name: gpt-4o-2024-08-06
+  #   config:
+  #     model: openai/gpt-4o-2024-08-06
+  #     cache: true
+  #     max_tokens: 2000
 
   - name: gpt-4o-mini-2024-07-18
     config:
       model: openai/gpt-4o-mini-2024-07-18
-      cache: true
+      cache: false
       max_tokens: 2000
 
   # - name: claude-3-5-sonnet-20241022
@@ -19,16 +17,16 @@ language_models:
   #     cache: true
   #     max_tokens: 2000
 
-  - name: claude-3-5-haiku-20241022
-    config:
-      model: anthropic/claude-3-5-haiku-20241022
-      cache: true
-      max_tokens: 2000
+  # - name: claude-3-5-haiku-20241022
+  #   config:
+  #     model: anthropic/claude-3-5-haiku-20241022
+  #     cache: true
+  #     max_tokens: 2000
 
   - name: gemini-2-0-flash-001
     config:
       model: gemini/gemini-2.0-flash-001
-      cache: true
+      cache: false
       max_tokens: 2000
 
   # - name: gemini-2-0-flash-lite-preview-02-05

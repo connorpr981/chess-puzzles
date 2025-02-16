@@ -17,7 +17,6 @@ class ChessMove(dspy.Signature):
     Input: Chess position in FEN notation and possible legal moves
     Output: Index of the best move from the provided options
     """
-    puzzle_id: str = dspy.InputField(description="The puzzle ID")
     puzzle: str = dspy.InputField(description="The current position FEN")
     possible_moves: dict[str, str] = dspy.InputField(description="Possible moves {index: uci_move}")
     move: int = dspy.OutputField(description="Index of the best move in possible_moves")
@@ -30,11 +29,11 @@ class ChessMoveSelection(dspy.Module):
     """
     def __init__(self):
         # Initialize the prediction component with the ChessMove signature
-        self.chess_move = dspy.Predict(ChessMove)
+        self.chess_move = dspy.ChainOfThought(ChessMove)
 
-    def forward(self, puzzle_id: str, puzzle: str, possible_moves: dict[str, str]):
+    def forward(self, puzzle: str, possible_moves: dict[str, str]):
         # Process a single chess position and return the predicted best move
-        prediction = self.chess_move(puzzle_id=puzzle_id, puzzle=puzzle, possible_moves=possible_moves)
+        prediction = self.chess_move(puzzle=puzzle, possible_moves=possible_moves)
         return prediction
 
 # 4. Define validation metric
@@ -46,7 +45,7 @@ def validate_move(example, pred, trace=None):
     return int(pred.move) == int(example["expected_move"])
 
 # 5. Evaluate with MLflow experiment
-experiment_name = "llm_chess_baseline"
+experiment_name = "llm_chess_cot"
 mlflow.set_experiment(experiment_name)
 
 # Loop through each model in config
@@ -79,7 +78,6 @@ for model_config in config['language_models']:
 
         # Extract predictions and ground truth for logging, handling failed predictions
         predicted_moves = []
-        puzzle_ids = []
         puzzle_fens = []
         expected_moves = []
         correct_flags = []
@@ -90,7 +88,6 @@ for model_config in config['language_models']:
                 continue
                 
             predicted_moves.append(pred.move)
-            puzzle_ids.append(example["puzzle_id"])
             puzzle_fens.append(example["puzzle"])
             expected_moves.append(example["expected_move"])
             
@@ -104,7 +101,6 @@ for model_config in config['language_models']:
         if predicted_moves:  # Check if we have any valid predictions
             mlflow.log_table(
                 {
-                    "PuzzleID": puzzle_ids,
                     "PuzzleFEN": puzzle_fens,
                     "ExpectedMove": expected_moves,
                     "PredictedMove": predicted_moves,
